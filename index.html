@@ -1,78 +1,49 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="bn">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rs Rohim Smart - Login</title><!-- Firebase CDN --><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script><style>
-body{
-    margin:0;
-    font-family:Arial, sans-serif;
-    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    color:#fff;
-}
+<title>Rs Rohim Smart Market - Live Version</title>
 
-.box{
-    width:100%;
-    max-width:380px;
-    background:rgba(255,255,255,0.1);
-    padding:25px;
-    border-radius:15px;
-    box-shadow:0 0 15px rgba(0,0,0,0.4);
-}
+<!-- Firebase CDN -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-h2{text-align:center;margin-bottom:20px;}
-
-input{
-    width:100%;
-    padding:12px;
-    margin:8px 0;
-    border:none;
-    border-radius:8px;
-    font-size:15px;
-}
-
-button{
-    width:100%;
-    padding:12px;
-    background:#00ffcc;
-    border:none;
-    border-radius:8px;
-    font-size:16px;
-    font-weight:bold;
-    margin-top:10px;
-    cursor:pointer;
-}
-
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);color:#fff;min-height:100vh;}
+.container{max-width:400px;margin:20px auto;padding:15px;}
+.box{background:rgba(255,255,255,0.1);padding:20px;border-radius:15px;margin-bottom:15px;box-shadow:0 0 10px rgba(0,0,0,0.4);}
+h2{text-align:center;margin-bottom:15px;}
+input,button{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:none;font-size:15px;}
+button{background:#00ffcc;font-weight:bold;cursor:pointer;}
 button:hover{opacity:.8}
+.link{text-align:center;margin-top:10px;color:#00ffcc;cursor:pointer;}
+img{width:80px;height:80px;border-radius:50%;display:block;margin:10px auto;object-fit:cover;}
+#dashboard,#marketPage,#addProductBox,#editProductBox,#liveMarket{display:none;}
+.card{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.1);padding:10px;border-radius:12px;margin-bottom:10px;box-shadow:0 2px 5px rgba(0,0,0,0.3);}
+.card img{width:45px;height:45px;border-radius:10px;padding:5px;background:#fff;margin-right:10px;}
+.card button{padding:5px 8px;font-size:12px;margin-left:5px;}
+.search-box input{width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:none;}
+</style>
+</head>
+<body>
 
-.link{
-    text-align:center;
-    margin-top:12px;
-    cursor:pointer;
-    color:#00ffcc;
-}
+<div class="container">
 
-img{
-    width:80px;
-    height:80px;
-    border-radius:50%;
-    display:block;
-    margin:10px auto;
-    object-fit:cover;
-}
-
-#dashboard{display:none;}
-</style></head>
-<body><!-- LOGIN --><div class="box" id="loginBox">
+<!-- LOGIN -->
+<div class="box" id="loginBox">
 <h2>Login</h2>
 <input id="loginEmail" type="email" placeholder="Email">
 <input id="loginPass" type="password" placeholder="Password">
 <button onclick="login()">Login</button>
 <div class="link" onclick="showRegister()">Create Account</div>
-</div><!-- REGISTER --><div class="box" id="registerBox" style="display:none">
+<div class="link" onclick="showLiveMarket()">View Live Market</div>
+</div>
+
+<!-- REGISTER -->
+<div class="box" id="registerBox" style="display:none;">
 <h2>Register</h2>
 <input id="name" placeholder="Your Name / আপনার নাম">
 <input id="shop" placeholder="Shop Name / দোকানের নাম">
@@ -82,13 +53,59 @@ img{
 <input type="file" id="photo">
 <button onclick="register()">Register</button>
 <div class="link" onclick="showLogin()">Already have account?</div>
-</div><!-- DASHBOARD --><div class="box" id="dashboard">
+</div>
+
+<!-- DASHBOARD -->
+<div class="box" id="dashboard">
 <h2>Dashboard</h2>
 <img id="userPic">
 <p id="userInfo"></p>
 <button onclick="logout()">Logout</button>
-</div><script>
+<button onclick="showAddProduct()">Add New Product</button>
+<button onclick="showMarket()">View My Products</button>
+<div class="link" onclick="showLiveMarket()">View Live Market</div>
+</div>
 
+<!-- ADD PRODUCT -->
+<div class="box" id="addProductBox">
+<h2>Add Product</h2>
+<input id="productName" placeholder="Product Name">
+<input id="productPrice" type="number" placeholder="Price (৳)">
+<input type="file" id="productPhoto">
+<button onclick="addProduct()">Add Product</button>
+<button onclick="hideAddProduct()">Back</button>
+</div>
+
+<!-- EDIT PRODUCT -->
+<div class="box" id="editProductBox">
+<h2>Edit Product</h2>
+<input id="editProductName" placeholder="Product Name">
+<input id="editProductPrice" type="number" placeholder="Price (৳)">
+<input type="file" id="editProductPhoto">
+<button onclick="updateProduct()">Update Product</button>
+<button onclick="hideEditProduct()">Back</button>
+</div>
+
+<!-- MARKET PAGE -->
+<div class="box" id="marketPage">
+<h2>My Products</h2>
+<div id="market"></div>
+<button onclick="hideMarket()">Back to Dashboard</button>
+</div>
+
+<!-- LIVE MARKET -->
+<div class="box" id="liveMarket">
+<h2>Live Market</h2>
+<div class="search-box">
+<input type="text" id="searchLive" placeholder="Search Product...">
+</div>
+<div id="liveProducts"></div>
+<button onclick="hideLiveMarket()">Back</button>
+</div>
+
+</div>
+
+<script>
 // Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyCY4Sru-f3PRxzRA48B9mlIPGAxsDj9dKk",
@@ -99,90 +116,150 @@ const firebaseConfig = {
   appId: "1:926392448285:web:767a3615df542a68dd1df4",
   measurementId: "G-MMHKL9ENRC"
 };
-
 firebase.initializeApp(firebaseConfig);
-
 const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
 
 /* UI Switch */
-function showRegister(){
- loginBox.style.display='none';
- registerBox.style.display='block';
-}
-
-function showLogin(){
- registerBox.style.display='none';
- loginBox.style.display='block';
-}
+function showRegister(){ loginBox.style.display='none'; registerBox.style.display='block'; }
+function showLogin(){ registerBox.style.display='none'; loginBox.style.display='block'; }
 
 /* Register */
 async function register(){
-
- let name=nameInput.value=name.value;
- let shopName=shop.value;
- let phoneNum=phone.value;
- let emailVal=email.value;
- let passVal=pass.value;
- let file=photo.files[0];
-
+ let nameVal=name.value, shopName=shop.value, phoneNum=phone.value, emailVal=email.value, passVal=pass.value, file=photo.files[0];
  if(!file){alert("Upload Photo");return;}
-
  try{
-
- const user=await auth.createUserWithEmailAndPassword(emailVal,passVal);
-
- const ref=storage.ref('shops/'+user.user.uid);
- await ref.put(file);
- const imgURL=await ref.getDownloadURL();
-
- await db.collection('users').doc(user.user.uid).set({
-   name:name,
-   shop:shopName,
-   phone:phoneNum,
-   photo:imgURL,
-   email:emailVal
- });
-
- alert("Account Created");
- showLogin();
-
- }catch(e){alert(e.message)}
+   const user=await auth.createUserWithEmailAndPassword(emailVal, passVal);
+   const ref=storage.ref('shops/'+user.user.uid+'/'+file.name);
+   await ref.put(file);
+   const imgURL=await ref.getDownloadURL();
+   await db.collection('users').doc(user.user.uid).set({name:nameVal,shop:shopName,phone:phoneNum,photo:imgURL,email:emailVal});
+   alert("Account Created ✅"); showLogin();
+ }catch(e){alert(e.message);}
 }
 
 /* Login */
 async function login(){
- try{
- await auth.signInWithEmailAndPassword(loginEmail.value,loginPass.value);
- }catch(e){alert(e.message)}
+ try{await auth.signInWithEmailAndPassword(loginEmail.value,loginPass.value);}catch(e){alert(e.message);}
 }
 
 /* Auth State */
+let currentUser=null;
 auth.onAuthStateChanged(async user=>{
  if(user){
-
-  loginBox.style.display='none';
-  registerBox.style.display='none';
-  dashboard.style.display='block';
-
-  let doc=await db.collection('users').doc(user.uid).get();
-  let data=doc.data();
-
-  userPic.src=data.photo;
-  userInfo.innerHTML=`
-  👤 ${data.name}<br>
-  🏪 ${data.shop}<br>
-  📞 ${data.phone}
-  `;
+   currentUser=user;
+   loginBox.style.display='none'; registerBox.style.display='none'; dashboard.style.display='block';
+   let doc=await db.collection('users').doc(user.uid).get();
+   let data=doc.data();
+   userPic.src=data.photo;
+   userInfo.innerHTML=`👤 ${data.name}<br>🏪 ${data.shop}<br>📞 ${data.phone}`;
+   loadMarket();
  }
 });
 
 /* Logout */
-function logout(){
- auth.signOut();
- location.reload();
+function logout(){ auth.signOut(); location.reload(); }
+
+/* Add Product */
+function showAddProduct(){dashboard.style.display='none';addProductBox.style.display='block';}
+function hideAddProduct(){addProductBox.style.display='none';dashboard.style.display='block';}
+async function addProduct(){
+ let name=productName.value, price=productPrice.value, file=productPhoto.files[0];
+ if(!name || !price || !file){alert("Fill All Fields & Upload Photo");return;}
+ const ref=storage.ref('products/'+currentUser.uid+'/'+file.name);
+ await ref.put(file); const imgURL=await ref.getDownloadURL();
+ await db.collection('products').add({uid:currentUser.uid,name:name,price:Number(price),photo:imgURL,shop:currentUser.uid});
+ alert("Product Added ✅"); productName.value=''; productPrice.value=''; productPhoto.value=''; loadMarket();
+ hideAddProduct();
 }
 
-</script></body>
+/* Edit Product */
+let editId=null;
+function showEditProduct(item){
+ editProductBox.style.display='block'; addProductBox.style.display='none'; dashboard.style.display='none';
+ editId=item.id; editProductName.value=item.name; editProductPrice.value=item.price;
+}
+function hideEditProduct(){editProductBox.style.display='none';dashboard.style.display='block';}
+
+/* Update Product */
+async function updateProduct(){
+ let name=editProductName.value, price=editProductPrice.value, file=editProductPhoto.files[0];
+ if(!name || !price){alert("Fill Name & Price");return;}
+ let data={name, price:Number(price)};
+ if(file){ const ref=storage.ref('products/'+currentUser.uid+'/'+file.name); await ref.put(file); const imgURL=await ref.getDownloadURL(); data.photo=imgURL; }
+ await db.collection('products').doc(editId).update(data);
+ alert("Product Updated ✅"); editProductBox.style.display='none'; loadMarket(); dashboard.style.display='block';
+}
+
+/* Delete Product */
+async function deleteProduct(id){ if(confirm("Are you sure?")){ await db.collection('products').doc(id).delete(); loadMarket(); alert("Product Deleted ✅"); }}
+
+/* Market Page */
+function showMarket(){dashboard.style.display='none';marketPage.style.display='block';}
+function hideMarket(){marketPage.style.display='none';dashboard.style.display='block';}
+let marketData=[];
+async function loadMarket(){
+ const snapshot=await db.collection('products').where('uid','==',currentUser.uid).get();
+ marketData=snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));
+ renderData(marketData);
+}
+
+function renderData(data){
+ const market=document.getElementById('market');
+ market.innerHTML='';
+ data.forEach(item=>{
+   const div=document.createElement('div');
+   div.className='card';
+   div.innerHTML=`
+   <div style="display:flex;align-items:center;">
+     <img src="${item.photo || ''}">
+     <span>${item.name} - ৳${item.price}/kg</span>
+   </div>
+   <div>
+     <button onclick='showEditProduct(${JSON.stringify(item)})'>Edit</button>
+     <button onclick='deleteProduct("${item.id}")'>Delete</button>
+   </div>
+   `;
+   market.appendChild(div);
+ });
+}
+
+/* LIVE MARKET */
+const liveProductsDiv=document.getElementById('liveProducts');
+const searchLive=document.getElementById('searchLive');
+
+function showLiveMarket(){loginBox.style.display='none';registerBox.style.display='none';dashboard.style.display='none';marketPage.style.display='none';liveMarket.style.display='block';loadLiveMarket();}
+function hideLiveMarket(){liveMarket.style.display='none';loginBox.style.display='block';}
+function loadLiveMarket(){
+ db.collection('products').onSnapshot(snapshot=>{
+   let products=snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));
+   renderLiveProducts(products);
+   searchLive.oninput=function(){
+     let filtered=products.filter(p=>p.name.toLowerCase().includes(this.value.toLowerCase()));
+     renderLiveProducts(filtered);
+   };
+ });
+}
+
+function renderLiveProducts(data){
+ liveProductsDiv.innerHTML='';
+ data.forEach(item=>{
+   const div=document.createElement('div');
+   div.className='card';
+   liveProductsDiv.appendChild(div);
+   div.innerHTML=`
+    <div style="display:flex;align-items:center;">
+      <img src="${item.photo||''}">
+      <div>
+        <b>${item.name}</b><br>
+        🏪 ${item.shop}<br>
+        ৳ ${item.price}/kg
+      </div>
+    </div>
+   `;
+ });
+}
+</script>
+</body>
 </html>
