@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rs Rohim Smart Market</title>
-
-<!-- Firebase SDK -->
+<title>Rs Rohim Smart - Login</title>
+<!-- Firebase CDN -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
@@ -14,22 +13,24 @@
 <style>
 body{
     margin:0;
-    font-family:Arial,sans-serif;
+    font-family:Arial, sans-serif;
     background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
     min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
     color:#fff;
 }
 .box{
     width:100%;
-    max-width:400px;
+    max-width:380px;
     background:rgba(255,255,255,0.1);
-    padding:20px;
+    padding:25px;
     border-radius:15px;
-    margin:15px auto;
     box-shadow:0 0 15px rgba(0,0,0,0.4);
 }
-h2{text-align:center;margin-bottom:15px;}
-input, button{
+h2{text-align:center;margin-bottom:20px;}
+input{
     width:100%;
     padding:12px;
     margin:8px 0;
@@ -38,15 +39,32 @@ input, button{
     font-size:15px;
 }
 button{
+    width:100%;
+    padding:12px;
     background:#00ffcc;
+    border:none;
+    border-radius:8px;
+    font-size:16px;
     font-weight:bold;
+    margin-top:10px;
     cursor:pointer;
 }
 button:hover{opacity:.8}
-.link{text-align:center;margin-top:10px;cursor:pointer;color:#00ffcc;}
-img{width:60px;height:60px;border-radius:10px;object-fit:cover;}
-.card{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.1);padding:10px;margin-bottom:10px;border-radius:10px;}
-.card img{margin-right:10px;width:50px;height:50px;}
+.link{
+    text-align:center;
+    margin-top:12px;
+    cursor:pointer;
+    color:#00ffcc;
+}
+img{
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    display:block;
+    margin:10px auto;
+    object-fit:cover;
+}
+#dashboard{display:none;}
 </style>
 </head>
 <body>
@@ -63,8 +81,8 @@ img{width:60px;height:60px;border-radius:10px;object-fit:cover;}
 <!-- REGISTER -->
 <div class="box" id="registerBox" style="display:none">
 <h2>Register</h2>
-<input id="name" placeholder="Your Name">
-<input id="shop" placeholder="Shop Name">
+<input id="name" placeholder="Your Name / আপনার নাম">
+<input id="shop" placeholder="Shop Name / দোকানের নাম">
 <input id="phone" placeholder="Phone Number">
 <input id="email" type="email" placeholder="Email">
 <input id="pass" type="password" placeholder="Password">
@@ -74,123 +92,120 @@ img{width:60px;height:60px;border-radius:10px;object-fit:cover;}
 </div>
 
 <!-- DASHBOARD -->
-<div class="box" id="dashboard" style="display:none">
-<h2>Seller Dashboard</h2>
+<div class="box" id="dashboard">
+<h2>Dashboard</h2>
 <img id="userPic">
 <p id="userInfo"></p>
-
-<!-- Product Upload -->
-<h3>Upload Product</h3>
-<input id="productName" placeholder="Product Name">
-<input id="productPrice" placeholder="Price">
-<input type="file" id="productImage">
-<button onclick="uploadProduct()">Add Product</button>
-
-<h3>Live Market</h3>
-<div id="market"></div>
-
 <button onclick="logout()">Logout</button>
 </div>
 
 <script>
-// Firebase Config
+// ------------------- Firebase Config -------------------
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCY4Sru-f3PRxzRA48B9mlIPGAxsDj9dKk",
+  authDomain: "md-abdur-rohim-34649.firebaseapp.com",
+  projectId: "md-abdur-rohim-34649",
+  storageBucket: "md-abdur-rohim-34649.firebasestorage.app",
+  messagingSenderId: "926392448285",
+  appId: "1:926392448285:web:767a3615df542a68dd1df4",
+  measurementId: "G-MMHKL9ENRC"
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
 
-// UI Switch
-function showRegister(){loginBox.style.display='none'; registerBox.style.display='block';}
-function showLogin(){registerBox.style.display='none'; loginBox.style.display='block';}
+// ------------------- Input References -------------------
+const nameInput = document.getElementById('name');
+const shopInput = document.getElementById('shop');
+const phoneInput = document.getElementById('phone');
+const emailInput = document.getElementById('email');
+const passInput = document.getElementById('pass');
+const photoInput = document.getElementById('photo');
 
-// REGISTER
+const loginEmailInput = document.getElementById('loginEmail');
+const loginPassInput = document.getElementById('loginPass');
+
+// ------------------- UI Switch -------------------
+function showRegister(){
+ loginBox.style.display='none';
+ registerBox.style.display='block';
+}
+function showLogin(){
+ registerBox.style.display='none';
+ loginBox.style.display='block';
+}
+
+// ------------------- Register Function -------------------
 async function register(){
-  let nameVal=name.value;
-  let shopVal=shop.value;
-  let phoneVal=phone.value;
-  let emailVal=email.value;
-  let passVal=pass.value;
-  let file=photo.files[0];
-  if(!file){alert("Upload Photo"); return;}
+  let nameVal = nameInput.value.trim();
+  let shopVal = shopInput.value.trim();
+  let phoneVal = phoneInput.value.trim();
+  let emailVal = emailInput.value.trim();
+  let passVal = passInput.value.trim();
+  let file = photoInput.files[0];
+
+  if(!nameVal || !shopVal || !phoneVal || !emailVal || !passVal){
+    alert("সব ফিল্ড পূরণ করুন!");
+    return;
+  }
+  if(!file){ alert("Upload Shop Photo"); return; }
+
   try{
     const user = await auth.createUserWithEmailAndPassword(emailVal, passVal);
-    const ref = storage.ref('shops/'+user.user.uid);
+    const ref = storage.ref('shops/'+user.user.uid+'/'+file.name);
     await ref.put(file);
     const imgURL = await ref.getDownloadURL();
+
     await db.collection('users').doc(user.user.uid).set({
-      name:nameVal,
-      shop:shopVal,
-      phone:phoneVal,
-      email:emailVal,
-      photo:imgURL
+      name: nameVal,
+      shop: shopVal,
+      phone: phoneVal,
+      email: emailVal,
+      photo: imgURL
     });
+
     alert("Account Created ✅");
     showLogin();
-  }catch(e){alert(e.message);}
+  }catch(e){ alert(e.message); }
 }
 
-// LOGIN
+// ------------------- Login Function -------------------
 async function login(){
-  try{await auth.signInWithEmailAndPassword(loginEmail.value,loginPass.value);}
-  catch(e){alert(e.message);}
+  try{
+    await auth.signInWithEmailAndPassword(loginEmailInput.value, loginPassInput.value);
+  }catch(e){ alert(e.message); }
 }
 
-// AUTH STATE
+// ------------------- Auth State -------------------
 auth.onAuthStateChanged(async user=>{
   if(user){
     loginBox.style.display='none';
     registerBox.style.display='none';
     dashboard.style.display='block';
+
     let doc = await db.collection('users').doc(user.uid).get();
     let data = doc.data();
+
     userPic.src = data.photo;
-    userInfo.innerHTML = `👤 ${data.name}<br>🏪 ${data.shop}<br>📞 ${data.phone}`;
-    loadProducts();
+    userInfo.innerHTML = `
+      👤 ${data.name}<br>
+      🏪 ${data.shop}<br>
+      📞 ${data.phone}
+    `;
   }
 });
 
-// LOGOUT
-function logout(){auth.signOut(); location.reload();}
-
-// UPLOAD PRODUCT
-async function uploadProduct(){
-  let nameVal = productName.value;
-  let priceVal = productPrice.value;
-  let file = productImage.files[0];
-  if(!nameVal || !priceVal || !file){alert("Fill all fields"); return;}
-  const user = auth.currentUser;
-  const ref = storage.ref('products/'+user.uid+'/'+file.name);
-  await ref.put(file);
-  const url = await ref.getDownloadURL();
-  await db.collection('products').add({
-    name:nameVal,
-    price:priceVal,
-    image:url,
-    sellerId:user.uid,
-    timestamp:firebase.firestore.FieldValue.serverTimestamp()
-  });
-  alert("Product Added ✅");
-  productName.value=''; productPrice.value=''; productImage.value=null;
+// ------------------- Logout -------------------
+function logout(){
+  auth.signOut();
+  location.reload();
 }
-
-// LOAD PRODUCTS (Live Market)
-function loadProducts(){
-  db.collection('products').orderBy('timestamp','desc')
-    .onSnapshot(snapshot=>{
-      const market = document.getElementById('market');
-      market.innerHTML='';
-      snapshot.docs.forEach(doc=>{
-        const data = doc.data();
-        market.innerHTML += `
+</script>
+</body>
+</html>= `
           <div class="card">
             <div style="display:flex;align-items:center;">
               <img src="${data.image}">
