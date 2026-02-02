@@ -1,0 +1,188 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rs Rohim Smart - Login</title><!-- Firebase CDN --><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script><style>
+body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:#fff;
+}
+
+.box{
+    width:100%;
+    max-width:380px;
+    background:rgba(255,255,255,0.1);
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 0 15px rgba(0,0,0,0.4);
+}
+
+h2{text-align:center;margin-bottom:20px;}
+
+input{
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border:none;
+    border-radius:8px;
+    font-size:15px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    background:#00ffcc;
+    border:none;
+    border-radius:8px;
+    font-size:16px;
+    font-weight:bold;
+    margin-top:10px;
+    cursor:pointer;
+}
+
+button:hover{opacity:.8}
+
+.link{
+    text-align:center;
+    margin-top:12px;
+    cursor:pointer;
+    color:#00ffcc;
+}
+
+img{
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    display:block;
+    margin:10px auto;
+    object-fit:cover;
+}
+
+#dashboard{display:none;}
+</style></head>
+<body><!-- LOGIN --><div class="box" id="loginBox">
+<h2>Login</h2>
+<input id="loginEmail" type="email" placeholder="Email">
+<input id="loginPass" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+<div class="link" onclick="showRegister()">Create Account</div>
+</div><!-- REGISTER --><div class="box" id="registerBox" style="display:none">
+<h2>Register</h2>
+<input id="name" placeholder="Your Name / আপনার নাম">
+<input id="shop" placeholder="Shop Name / দোকানের নাম">
+<input id="phone" placeholder="Phone Number">
+<input id="email" type="email" placeholder="Email">
+<input id="pass" type="password" placeholder="Password">
+<input type="file" id="photo">
+<button onclick="register()">Register</button>
+<div class="link" onclick="showLogin()">Already have account?</div>
+</div><!-- DASHBOARD --><div class="box" id="dashboard">
+<h2>Dashboard</h2>
+<img id="userPic">
+<p id="userInfo"></p>
+<button onclick="logout()">Logout</button>
+</div><script>
+
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyCY4Sru-f3PRxzRA48B9mlIPGAxsDj9dKk",
+  authDomain: "md-abdur-rohim-34649.firebaseapp.com",
+  projectId: "md-abdur-rohim-34649",
+  storageBucket: "md-abdur-rohim-34649.firebasestorage.app",
+  messagingSenderId: "926392448285",
+  appId: "1:926392448285:web:767a3615df542a68dd1df4",
+  measurementId: "G-MMHKL9ENRC"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+/* UI Switch */
+function showRegister(){
+ loginBox.style.display='none';
+ registerBox.style.display='block';
+}
+
+function showLogin(){
+ registerBox.style.display='none';
+ loginBox.style.display='block';
+}
+
+/* Register */
+async function register(){
+
+ let name=nameInput.value=name.value;
+ let shopName=shop.value;
+ let phoneNum=phone.value;
+ let emailVal=email.value;
+ let passVal=pass.value;
+ let file=photo.files[0];
+
+ if(!file){alert("Upload Photo");return;}
+
+ try{
+
+ const user=await auth.createUserWithEmailAndPassword(emailVal,passVal);
+
+ const ref=storage.ref('shops/'+user.user.uid);
+ await ref.put(file);
+ const imgURL=await ref.getDownloadURL();
+
+ await db.collection('users').doc(user.user.uid).set({
+   name:name,
+   shop:shopName,
+   phone:phoneNum,
+   photo:imgURL,
+   email:emailVal
+ });
+
+ alert("Account Created");
+ showLogin();
+
+ }catch(e){alert(e.message)}
+}
+
+/* Login */
+async function login(){
+ try{
+ await auth.signInWithEmailAndPassword(loginEmail.value,loginPass.value);
+ }catch(e){alert(e.message)}
+}
+
+/* Auth State */
+auth.onAuthStateChanged(async user=>{
+ if(user){
+
+  loginBox.style.display='none';
+  registerBox.style.display='none';
+  dashboard.style.display='block';
+
+  let doc=await db.collection('users').doc(user.uid).get();
+  let data=doc.data();
+
+  userPic.src=data.photo;
+  userInfo.innerHTML=`
+  👤 ${data.name}<br>
+  🏪 ${data.shop}<br>
+  📞 ${data.phone}
+  `;
+ }
+});
+
+/* Logout */
+function logout(){
+ auth.signOut();
+ location.reload();
+}
+
+</script></body>
+</html>
